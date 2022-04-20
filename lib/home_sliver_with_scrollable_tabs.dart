@@ -13,13 +13,18 @@ class _HomeSliverWithScrollableTabsState
     extends State<HomeSliverWithScrollableTabs> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: CustomScrollView(
-        slivers: [_FlexibleSpaceBarHeader()],
+        slivers: [
+          const _FlexibleSpaceBarHeader(),
+          SliverPersistentHeader(delegate: _HeaderSliver())
+        ],
       ),
     );
   }
 }
+
+
 
 class _FlexibleSpaceBarHeader extends StatelessWidget {
   const _FlexibleSpaceBarHeader({Key? key}) : super(key: key);
@@ -51,4 +56,36 @@ class _FlexibleSpaceBarHeader extends StatelessWidget {
       ),
     );
   }
+}
+
+const _maxHeaderExtent = 100.00;
+
+class _HeaderSliver extends SliverPersistentHeaderDelegate {
+  @override
+  Widget build(BuildContext context, double shrinkOffset,
+      bool overlapsContent) {
+    return Stack(
+      children: [
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: Container(
+            height: _maxHeaderExtent,
+            color: Colors.blue,
+          ),
+        )
+      ],
+    );
+  }
+
+  @override
+  double get maxExtent => _maxHeaderExtent;
+
+  @override
+  double get minExtent => _maxHeaderExtent;
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
+      false;
 }
