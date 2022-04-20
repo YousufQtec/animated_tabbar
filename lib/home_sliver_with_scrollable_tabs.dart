@@ -1,5 +1,8 @@
 import 'package:animated_tabbar/background_sliver.dart';
+import 'package:animated_tabbar/controller/sliver_scroll_controller.dart';
+import 'package:animated_tabbar/my_header_title.dart';
 import 'package:animated_tabbar/sliver_header_data.dart';
+import 'package:animated_tabbar/widgets/sliver_body_items.dart';
 import 'package:flutter/material.dart';
 
 class HomeSliverWithScrollableTabs extends StatefulWidget {
@@ -12,13 +15,34 @@ class HomeSliverWithScrollableTabs extends StatefulWidget {
 
 class _HomeSliverWithScrollableTabsState
     extends State<HomeSliverWithScrollableTabs> {
+  final bloc = SliverScrollController();
+
+  @override
+  void initState() {
+    bloc.init();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    bloc.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           const _FlexibleSpaceBarHeader(),
-          SliverPersistentHeader(pinned: true, delegate: _HeaderSliver())
+          SliverPersistentHeader(pinned: true, delegate: _HeaderSliver()),
+          for (var i = 0; i < bloc.listCategory.length; i++) ...[
+            SliverPersistentHeader(
+              delegate:
+                  MyHeaderTitle((visible) {}, bloc.listCategory[i].category),
+            ),
+            SliverBodyItems(listItem: bloc.listCategory[i].products)
+          ]
         ],
       ),
     );
