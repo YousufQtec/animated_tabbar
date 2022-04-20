@@ -33,46 +33,71 @@ class _HomeSliverWithScrollableTabsState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          const _FlexibleSpaceBarHeader(),
-          SliverPersistentHeader(
-              pinned: true, delegate: _HeaderSliver(bloc: bloc)),
-          for (var i = 0; i < bloc.listCategory.length; i++) ...[
-            SliverPersistentHeader(
-              delegate:
-                  MyHeaderTitle((visible) {}, bloc.listCategory[i].category),
-            ),
-            SliverBodyItems(listItem: bloc.listCategory[i].products)
-          ]
-        ],
+      body: Scrollbar(
+        radius: const Radius.circular(8),
+        notificationPredicate: (scroll) {
+          bloc.valueScroll.value = scroll.metrics.extentInside;
+          return true;
+        },
+        child: ValueListenableBuilder(
+            valueListenable: bloc.globalOffsetValue,
+            builder: (_, double valueCurrentScroll, __) {
+              return CustomScrollView(
+                controller: bloc.scrollControllerGlobally,
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  _FlexibleSpaceBarHeader(
+                    valueScroll: valueCurrentScroll,
+                    bloc: bloc,
+                  ),
+                  SliverPersistentHeader(
+                      pinned: true, delegate: _HeaderSliver(bloc: bloc)),
+                  for (var i = 0; i < bloc.listCategory.length; i++) ...[
+                    SliverPersistentHeader(
+                      delegate: MyHeaderTitle(
+                          (visible) {}, bloc.listCategory[i].category),
+                    ),
+                    SliverBodyItems(listItem: bloc.listCategory[i].products)
+                  ]
+                ],
+              );
+            }),
       ),
     );
   }
 }
 
 class _FlexibleSpaceBarHeader extends StatelessWidget {
-  const _FlexibleSpaceBarHeader({Key? key}) : super(key: key);
+  const _FlexibleSpaceBarHeader(
+      {Key? key, required this.valueScroll, required this.bloc})
+      : super(key: key);
+  final double valueScroll;
+  final SliverScrollController bloc;
 
   @override
   Widget build(BuildContext context) {
+    final sizeHeight = MediaQuery.of(context).size.height;
     return SliverAppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Colors.transparent,
+      stretch: true,
+      pinned: valueScroll < 90 ? true : false,
       expandedHeight: 250,
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
-          children: const [
-            BackgroundSliver(),
+          children: [
+            const BackgroundSliver(),
             Positioned(
                 right: 10,
-                top: 30,
-                child: Icon(
+                top: (sizeHeight + 30) - bloc.valueScroll.value,
+                child: const Icon(
                   Icons.favorite,
                   size: 30,
                 )),
             Positioned(
                 left: 10,
-                top: 30,
-                child: Icon(
+                top: (sizeHeight + 30) - bloc.valueScroll.value,
+                child: const Icon(
                   Icons.arrow_back,
                   size: 30,
                 ))
@@ -132,11 +157,23 @@ class _HeaderSliver extends SliverPersistentHeaderDelegate {
                 const SizedBox(
                   height: 6,
                 ),
-                AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 400),
-                    child: percent > 0.1
-                        ? ListItemSliverHeader(bloc: bloc)
-                        : const SliverHeaderData())
+                Expanded(
+                  child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 400),
+                      child: percent > 0.1
+                          ? ListItemSliverHeader(bloc: bloc)
+                          : const SliverHeaderData()),
+                ),
+                if (percent > 0.1)
+                  Positioned(
+                      child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 500),
+                          child: percent > 0.1
+                              ? Container(
+                                  height: 0.5,
+                                  color: Colors.white10,
+                                )
+                              : null))
               ],
             ),
           ),

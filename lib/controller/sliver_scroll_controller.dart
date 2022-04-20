@@ -47,6 +47,11 @@ class SliverScrollController {
         List.generate(listCategory.length, (index) => index.toDouble());
     scrollControllerGlobally = ScrollController();
     scrollControllerItemHeader = ScrollController();
+    scrollControllerGlobally.addListener(_listenToScrollChange);
+  }
+
+  void _listenToScrollChange(){
+    globalOffsetValue.value = scrollControllerGlobally.offset;
   }
 
   void dispose() {
