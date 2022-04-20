@@ -8,6 +8,7 @@ class SliverHeaderData extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 16.00),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Asiatich . koreanich . Jaoanisch',
               style: TextStyle(fontSize: 14)),

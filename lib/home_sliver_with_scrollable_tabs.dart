@@ -1,4 +1,5 @@
 import 'package:animated_tabbar/background_sliver.dart';
+import 'package:animated_tabbar/sliver_header_data.dart';
 import 'package:flutter/material.dart';
 
 class HomeSliverWithScrollableTabs extends StatefulWidget {
@@ -17,14 +18,12 @@ class _HomeSliverWithScrollableTabsState
       body: CustomScrollView(
         slivers: [
           const _FlexibleSpaceBarHeader(),
-          SliverPersistentHeader(delegate: _HeaderSliver())
+          SliverPersistentHeader(pinned: true, delegate: _HeaderSliver())
         ],
       ),
     );
   }
 }
-
-
 
 class _FlexibleSpaceBarHeader extends StatelessWidget {
   const _FlexibleSpaceBarHeader({Key? key}) : super(key: key);
@@ -62,8 +61,9 @@ const _maxHeaderExtent = 100.00;
 
 class _HeaderSliver extends SliverPersistentHeaderDelegate {
   @override
-  Widget build(BuildContext context, double shrinkOffset,
-      bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    final percent = shrinkOffset / _maxHeaderExtent;
     return Stack(
       children: [
         Positioned(
@@ -73,6 +73,30 @@ class _HeaderSliver extends SliverPersistentHeaderDelegate {
           child: Container(
             height: _maxHeaderExtent,
             color: Colors.blue,
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 20,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    children: const [
+                      Icon(Icons.arrow_back),
+                      Text(
+                        'Kavsoft Bakery',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 6,
+                ),
+                const SliverHeaderData()
+              ],
+            ),
           ),
         )
       ],
