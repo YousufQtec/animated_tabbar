@@ -2,6 +2,7 @@ import 'package:animated_tabbar/background_sliver.dart';
 import 'package:animated_tabbar/controller/sliver_scroll_controller.dart';
 import 'package:animated_tabbar/my_header_title.dart';
 import 'package:animated_tabbar/sliver_header_data.dart';
+import 'package:animated_tabbar/widgets/list_item_sliver_header.dart';
 import 'package:animated_tabbar/widgets/sliver_body_items.dart';
 import 'package:flutter/material.dart';
 
@@ -35,7 +36,8 @@ class _HomeSliverWithScrollableTabsState
       body: CustomScrollView(
         slivers: [
           const _FlexibleSpaceBarHeader(),
-          SliverPersistentHeader(pinned: true, delegate: _HeaderSliver()),
+          SliverPersistentHeader(
+              pinned: true, delegate: _HeaderSliver(bloc: bloc)),
           for (var i = 0; i < bloc.listCategory.length; i++) ...[
             SliverPersistentHeader(
               delegate:
@@ -84,6 +86,10 @@ class _FlexibleSpaceBarHeader extends StatelessWidget {
 const _maxHeaderExtent = 100.00;
 
 class _HeaderSliver extends SliverPersistentHeaderDelegate {
+  final SliverScrollController bloc;
+
+  _HeaderSliver({required this.bloc});
+
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
@@ -96,7 +102,7 @@ class _HeaderSliver extends SliverPersistentHeaderDelegate {
           bottom: 0,
           child: Container(
             height: _maxHeaderExtent,
-            color: Colors.blue,
+            color: Colors.black,
             child: Column(
               children: [
                 const SizedBox(
@@ -105,12 +111,20 @@ class _HeaderSliver extends SliverPersistentHeaderDelegate {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
-                    children: const [
-                      Icon(Icons.arrow_back),
-                      Text(
-                        'Kavsoft Bakery',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
+                    children: [
+                      AnimatedOpacity(
+                          opacity: percent > 0.1 ? 1 : 0,
+                          duration: const Duration(milliseconds: 300),
+                          child: const Icon(Icons.arrow_back)),
+                      AnimatedSlide(
+                        duration: const Duration(milliseconds: 300),
+                        offset: Offset(percent < 0.1 ? -0.18 : 0.1, 0),
+                        curve: Curves.easeIn,
+                        child: const Text(
+                          'Kavsoft Bakery',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
                       )
                     ],
                   ),
@@ -118,7 +132,11 @@ class _HeaderSliver extends SliverPersistentHeaderDelegate {
                 const SizedBox(
                   height: 6,
                 ),
-                const SliverHeaderData()
+                AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 400),
+                    child: percent > 0.1
+                        ? ListItemSliverHeader(bloc: bloc)
+                        : const SliverHeaderData())
               ],
             ),
           ),
